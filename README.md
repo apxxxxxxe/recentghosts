@@ -1,5 +1,7 @@
 # 伺かプラグイン「直近のゴースト」
 
+![thumbnail](https://github.com/apxxxxxxe/recentghosts/blob/images/image.png?raw=true)
+
 - SSPでのみ動作確認
 - このプラグインは、YAYA as PLUGINを使用して作られています。
 - 作成にあたり、プラグイン「第弐版仮想道頓堀水泳拡張」をテンプレートとして使用させていただきました。
