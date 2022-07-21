@@ -1,0 +1,131 @@
+// ****使い方****
+// 
+// 関数名はイベント名そのままです。SHIORI/3.0テンプレートのように、
+// 文字列取得時頭にOn_がつくようなことはありません。
+// 
+// 値を返すとその内容をSakuraScriptとして実行します
+// 以下の変数に代入すると、動作を制御できます。
+//
+//   res_event , res_reference[0]...[n]
+//     指定したイベントをReferenceつきで発生します。referenceは省略可
+//
+//   res_target
+//     スクリプトやイベントをどのゴーストに送るかを指定します。
+//     Sakura名を指定してください。また、__SYSTEM_ALL_GHOST__で全起動中ゴーストに通知します。
+//     省略すると「プラグインメニューを実行したゴースト」に送ります
+//
+//   res_marker
+//     バルーンのマーカー(下に小さく出るステータス表示)に表示する文字を指定できます。
+//
+//   res_event_option / res_script_option
+//     それぞれ、EventOption / ScriptOptionヘッダを設定します。
+//
+// 詳しくはプラグイン仕様書を参照してください。
+// http://emily.shillest.net/specwiki/index.php?PLUGIN%2F2.0%2F%E4%BB%95%E6%A7%98%E6%9B%B8
+// 
+
+version
+{
+	'直近のゴースト/0.5.0'
+}
+
+OnSystemLoadInit
+{
+	InitVar("ghostList", IARRAY)
+	ghostCntLimit = 20
+}
+
+OnGhostBoot : void
+{
+	if reference[1] == ""
+		return
+
+	// リストから無効な値をフィルタリングしたリストを作成
+	_ary = IARRAY
+	foreach ghostList; _ghost {
+		if _ghost != ""
+			_ary ,= _ghost
+	}
+
+	// 既にリストにあるゴーストだった場合は削除し、リストの最新部に位置するように
+	_n = ASEARCH(reference[1], _ary);
+	if  _n != -1
+      _ary[_n] = IARRAY
+
+	// リストに追加
+	_ary ,= reference[1]
+
+	// リストがいっぱいなら最古のゴーストを削除
+	if ARRAYSIZE(_ary) > ghostCntLimit 
+		_ary[0] = IARRAY
+	
+	// 加工した一時リストを本体に反映
+	ghostList = _ary
+}
+
+OnMenuExec
+{
+	_digit = TOINT(LOG10(ghostCntLimit)+1)
+	_ghostname_bytes_length_limit = 24 - _digit
+	_res = ""
+	_cnt = ARRAYSIZE(ghostList)
+	for _i=ARRAYSIZE(ghostList)-1; _i>=0; _i-- {
+		_ghost = ghostList[_i]
+		_ghostname = ARRANGETEXT(_ghost, _ghostname_bytes_length_limit)
+		_res += "\f[align,left]"
+		_res += STRFORM("$%(_digit)d. ", _cnt-_i)
+		_res += "%(_ghostname)\_l[@0,@0]\f[align,right]\![*]\q[切り替え,%(CHR(34))script:\![change,ghost,%(_ghost),--option=raise-event]%(CHR(34))] \![*]\q[呼ぶ,%(CHR(34))script:\![call,ghost,%(_ghost),--option=raise-event]%(CHR(34))]\n"
+	}
+	_res = "\f[align,left]\b[2]直近のゴースト\_l[@0,@0]\f[align,right]\q[×,%(CHR(34))script:\e]%(CHR(34))]\n\n" + _res
+
+	"\_q%(_res)\_q"
+}
+
+InitVar
+{
+	_vname = _argv[0]
+	_value = _argv[1]
+	if !ISVAR(_vname) {
+		LETTONAME(_vname, _value)
+	}
+}
+
+// ref: https://emily.shillest.net/ayaya/?cmd=read&page=Tips%2F%E3%83%86%E3%82%AD%E3%82%B9%E3%83%88%E3%81%AE%E5%B9%85%E3%82%92%E6%8F%83%E3%81%88%E3%82%8B&word=%E3%83%90%E3%82%A4%E3%83%88%E6%95%B0
+ARRANGETEXT
+ {
+ _sb=TOINT(_argv[1])
+ _bytes=(GETSTRBYTES(_argv[0],0))
+	if _bytes < _sb {
+		// 半角空白で埋める
+		_space=(_sb-_bytes)
+		_val=_argv[0]
+		_lp=1
+			while _lp <= _space {
+				_val=_val+' '
+				_lp++
+			}
+		_val
+	}
+	elseif _bytes > _sb {
+		// 越えていれば削る
+		_leng=_sb
+		_loop=0
+		_text=_argv[0]
+		_byte=0
+		_c=''
+		while _byte<_leng {
+			_sub=(SUBSTR((_text),(_loop),1))
+			_c=_c+_sub
+			_byte=(GETSTRBYTES(_c,0))
+			_loop++
+			if _loop>200 {break}
+		}
+		_re=RE_GREP(_c,'.$')
+		_re=RE_GETSTR
+		if (GETSTRBYTES((_c),0))>_leng {
+			_c=(RE_REPLACE(_c,'.$',''))+' '
+		}
+		_c + '…'
+	}
+	else {_argv[0]}
+ }
