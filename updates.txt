@@ -7,4 +7,4 @@ file,system/yaya_plugin2.dicd31de83a19e1b0193a95b516f819bac7size=19332date=20
 file,system_config.txt15c8a3a4dc51b222aa41fdec2d6b6a98size=276date=2012-12-21T00:00:00
 file,yaya.dll8a0a0c196b76a4a1f12a6e44499351eesize=880640date=2012-12-21T00:00:00
 file,yaya.txt11458c98cff8832ad80aeaad00c3e803size=1850date=2012-12-21T00:00:00
-file,yaya_plugin_main.dice8e5207930656b8325500347b269d387size=3800date=2012-12-21T00:00:00
+file,yaya_plugin_main.dic7c6856b92dd59ab23a6c527bcbe25f70size=3803date=2012-12-21T00:00:00
