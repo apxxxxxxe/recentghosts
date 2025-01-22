@@ -32,7 +32,7 @@ version
 OnSystemLoadInit
 {
 	InitVar("ghostList", IARRAY)
-	ghostCntLimit = 20
+	ghostCntLimit = 500
 }
 
 OnGhostBoot : void
